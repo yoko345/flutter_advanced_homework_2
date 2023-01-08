@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'models.dart';
 import 'providers.dart';
 
@@ -15,7 +13,6 @@ class SearchBook extends ConsumerWidget {
     final genre = ref.watch(genreProvider);
     TextEditingController keyWordEditingController = TextEditingController();
     keyWordEditingController.text = ref.read(keyWordProvider.notifier).state;
-    // final keyWord = ref.watch(keyWordProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,6 +55,7 @@ class SearchBook extends ConsumerWidget {
               ],
               onChanged: (value) {
                 ref.read(genreProvider.notifier).state = value!;
+                ref.read(keyWordProvider.notifier).state = '';
               },
               value: genre,
             ),
@@ -68,10 +66,11 @@ class SearchBook extends ConsumerWidget {
               width: MediaQuery.of(context).size.width/2,
               child: TextField(
                 controller: keyWordEditingController,
-                onEditingComplete: () {
-                  ref.read(keyWordProvider.notifier).state = keyWordEditingController.text;
+                onChanged: (value) {
+                  ref.read(keyWordProvider.notifier).state = value;
                 },
                 decoration: const InputDecoration(labelText: 'キーワード', border: OutlineInputBorder()),
+                keyboardType: TextInputType.text,
               ),
             ),
             const SizedBox(height: 15,),

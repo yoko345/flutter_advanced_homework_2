@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
-import 'models.dart';
 import 'providers.dart';
 import 'search_book.dart';
+import 'models.dart';
 
 
 void main() async {
@@ -38,21 +38,6 @@ class MyHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  final keyWord = ref.watch(keyWordProvider);
-
-  void filterController(book, String docId) async {
-    await bookRef.doc(docId).update({'filter': false});
-
-    if(keyWord != '') {
-      if(book.title.contains(keyWord)) {
-        await bookRef.doc(docId).update({'filter': true});
-      } else if(book.description.contains(keyWord)) {
-        await bookRef.doc(docId).update({'filter': true});
-      }
-    }
-
-  }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('蔵書一覧'),
@@ -77,8 +62,6 @@ class MyHomePage extends ConsumerWidget {
                       child: ListView.builder(
                         itemCount: docs.length,
                         itemBuilder: (context, index) {
-                          // bookRef.doc(docs[index].id).update({'filter': false});
-                          filterController(docs[index].data(), docs[index].id);
                           return BookCard(book: docs[index].data());
                         }
                       ),
@@ -103,39 +86,70 @@ class BookCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  debugPrint('発動！！');
+    final keyWord = ref.watch(keyWordProvider);
+    final genre = ref.watch(genreProvider);
 
-    // final keyWord = ref.watch(keyWordProvider);
-    // if(keyWord != '') {
-    //   if(book.title.contains(keyWord)) {
-    //     docId.add(searchId);
-    //     // FirebaseFirestore.instance.collection('books').doc(docId).update({'filter': false});
-    //     // FirebaseFirestore.instance.collection('books').doc(docId).update({'filter': true});
-    //   } else if(book.description.contains(keyWord)) {
-    //     docId.add(searchId);
-    //     // FirebaseFirestore.instance.collection('books').doc(docId).update({'filter': false});
-    //     // FirebaseFirestore.instance.collection('books').doc(docId).update({'filter': true});
-    //   }
-    // }
-    // for(int i = 0; i < docId.length; i++) {
-    //   FirebaseFirestore.instance.collection('books').doc(docId[i]).update({'filter': true});
-    // debugPrint(docId[i]);
-    // }
-
-    return Container(
-      margin: const EdgeInsets.all(5.0),
-      child: Card(
-        child: Container(
-          padding: const EdgeInsets.all(5.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${book.title} - ${book.author}-${book.filter}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-              Text(book.description, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),),
-            ],
+    if(keyWord != '' && genre != Genre.any) {
+      if (book.title.contains(keyWord)) {
+        return Container(
+          margin: const EdgeInsets.all(5.0),
+          child: Card(
+            child: Container(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${book.title} - ${book.author}', style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text(book.description, style: const TextStyle(fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey),),
+                ],
+              ),
+            ),
+          ),
+        );
+      } else if (book.description.contains(keyWord)) {
+        return Container(
+          margin: const EdgeInsets.all(5.0),
+          child: Card(
+            child: Container(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${book.title} - ${book.author}', style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text(book.description, style: const TextStyle(fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey),),
+                ],
+              ),
+            ),
+          ),
+        );
+      } else {
+        return Container();
+      }
+    } else {
+      return Container(
+        margin: const EdgeInsets.all(5.0),
+        child: Card(
+          child: Container(
+            padding: const EdgeInsets.all(5.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${book.title} - ${book.author}', style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold),),
+                Text(book.description, style: const TextStyle(fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey),),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
